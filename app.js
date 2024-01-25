@@ -1,26 +1,28 @@
 // app.js
 const express = require('express');
 const axios = require('axios');
+const querystring = require('querystring');
 const app = express();
+const baseUrl = 'https://api.thecatapi.com/';
 const port = 3000;
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+const apiKey = 'live_SXUOVUMtNZbjnNwOff959alhjKDB7PhgX4OtlKT07PiKbmHQEAlAFaWcC703gUVG'
 
 // New route to get a picture of a random cat
-app.get('/cat', async (req, res) => {
+app.get('/cats', async (req, res) => {
+  const data = {
+    limit: 10,
+    breed_ids: 'beng',
+    api_key: apiKey
+  };
+  const queryParams = '?' + querystring.stringify(data);
+
   try {
-    // Hacer una solicitud a la API de gatos
-    const response = await axios.get('https://api.thecatapi.com/v1/images/search');
-
-    const imageUrl = response.data[0].url;
-
-    // Send the image URL as a response
-    res.send(`<img src="${imageUrl}" alt="Random cat">`);
+    const url = baseUrl + 'v1/images/search' + queryParams;
+    const response = await axios.get(url);
+    res.send(response.data);
   } catch (error) {
-    console.error('Error al obtener la imagen del gato', error);
-    res.status(500).send('Error interno del servidor');
+    console.error('Error getting cat image', error);
+    res.status(500).send('Internal server error');
   }
 });
 
